@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="30 seconds">
     <!-- 通用属性 -->
-    <property name="LOG_PATH" value="./logs" />
-    <property name="APP_NAME" value="customer-web" />
+    <property name="LOG_PATH" value="./logs"/>
+    <property name="APP_NAME" value="customer-web"/>
 
     <!-- 控制台输出 -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
@@ -15,7 +15,7 @@
     <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
         <queueSize>1024</queueSize>
         <discardingThreshold>0</discardingThreshold>
-        <appender-ref ref="ROLLING_FILE" />
+        <appender-ref ref="ROLLING_FILE"/>
     </appender>
 
     <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -33,11 +33,11 @@
 
     <!-- 同时输出到控制台和文件 -->
     <root level="INFO">
-        <appender-ref ref="CONSOLE" />
-        <appender-ref ref="ASYNC_FILE" />
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ASYNC_FILE"/>
     </root>
 
     <!-- 第三方库日志降级配置 -->
-    <logger name="org.springframework" level="WARN" />
-    <logger name="com.zaxxer.hikari" level="INFO" />
+    <logger name="org.springframework" level="WARN"/>
+    <logger name="com.zaxxer.hikari" level="INFO"/>
 </configuration>
