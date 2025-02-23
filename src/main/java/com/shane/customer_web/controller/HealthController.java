@@ -19,6 +19,23 @@ public class HealthController {
     @GetMapping("/test")
     public R<Object> test() {
         log.info("invoke /test.");
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new BusinessException(1001, e.getMessage());
+        }
         throw new BusinessException(1001, "test");
+    }
+
+    @GetMapping("/test2")
+    public R<Object> test2() {
+        log.info("invoke /test2.");
+        // 休眠6秒
+        try {
+            Thread.sleep(6000);
+        } catch (InterruptedException e) {
+            throw new BusinessException(1001, e.getMessage());
+        }
+        return R.success();
     }
 }
