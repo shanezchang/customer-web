@@ -23,12 +23,13 @@ public class MailServiceImpl implements MailService {
 
     private final JavaMailSender mailSender;
 
-    private static final String fromEmail = "test";
+    @Value("${spring.mail.username}")
+    private String fromEmail;
 
     @Override
     public void sendSimpleMail(String to, String subject, String content) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("3884053091@qq.com");
+        message.setFrom(fromEmail);
         message.setTo(to);
         message.setSubject(subject);
         message.setText(content);

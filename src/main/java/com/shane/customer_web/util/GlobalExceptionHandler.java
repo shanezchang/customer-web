@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public R<?> handleGlobalException(Exception e) {
-        log.warn("全局异常 {}", e.getMessage());
+        log.error("全局异常 {}", e.getMessage());
         return R.fail(RspCode.INNER_ERROR.getCode(), RspCode.INNER_ERROR.getMessage());
     }
 }
