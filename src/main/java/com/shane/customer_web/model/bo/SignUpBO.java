@@ -4,12 +4,15 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class SignInBO {
+public class SignUpBO {
 
     @NotBlank
     private String email;
 
     @NotBlank
-    private String signature;
+    private String password;
+
+    @NotBlank
+    private String verifyCode;
 
 }

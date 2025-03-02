@@ -1,7 +1,11 @@
 package com.shane.customer_web.service.impl;
 
 import com.shane.customer_web.service.IMailService;
+import com.shane.customer_web.util.BusinessException;
+import com.shane.customer_web.util.RspCode;
 import jakarta.mail.MessagingException;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -26,6 +31,10 @@ public class MailService implements IMailService {
 
     @Value("${spring.mail.username}")
     private String fromEmail;
+
+    private static final String EMAIL_REGEX = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 
     @Override
     public void sendSimpleMail(String to, String subject, String content) {
@@ -81,6 +90,29 @@ public class MailService implements IMailService {
         } catch (MessagingException e) {
             log.error("发送带附件邮件失败", e);
             throw new MailSendException("邮件发送失败");
+        }
+    }
+
+    @Override
+    public void sendEmail(String toEmail, String subject, String content) {
+        if (!this.isValidEmail(toEmail)) {
+            throw new BusinessException(RspCode.EMAIL_ADDRESS_ERROR);
+        }
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(fromEmail);
+        message.setTo(toEmail);
+        message.setSubject(subject);
+        message.setText(content);
+        mailSender.send(message);
+    }
+
+    private boolean isValidEmail(String email) {
+        try {
+            InternetAddress address = new InternetAddress(email);
+            address.validate();
+            return true;
+        } catch (AddressException ex) {
+            return false;
         }
     }
 }

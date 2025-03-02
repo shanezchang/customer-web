@@ -15,7 +15,7 @@ public class UserEntity {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    private String account;
+    private Long userId;
 
     private String nickname;
 

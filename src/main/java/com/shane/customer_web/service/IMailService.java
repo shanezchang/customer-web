@@ -31,4 +31,7 @@ public interface IMailService {
      */
     void sendAttachmentMail(String to, String subject, String content,
                             Map<String, String> attachments);
+
+    void sendEmail(String toEmail, String subject, String content);
+
 }

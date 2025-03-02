@@ -2,8 +2,12 @@ package com.shane.customer_web.util;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @Slf4j
@@ -20,5 +24,21 @@ public class GlobalExceptionHandler {
     public R<?> handleGlobalException(Exception e) {
         log.error("全局异常 {}", e.getMessage());
         return R.fail(RspCode.INNER_ERROR.getCode(), RspCode.INNER_ERROR.getMessage());
+    }
+
+    @ExceptionHandler(value = BindException.class)
+    public R<?> exceptionHandler(BindException e) {
+        String errMsg = e.getBindingResult().getAllErrors().stream()
+                .map(error -> {
+                    if (error instanceof FieldError fieldError) {
+                        return String.format("%s: %s", fieldError.getField(), error.getDefaultMessage());
+                    }
+                    return error.getDefaultMessage();
+                }).collect(Collectors.joining("; "));
+
+        errMsg = errMsg.isEmpty() ? RspCode.PARAM_ERROR.getMessage() : errMsg;
+        log.warn("参数校验失败 {}", errMsg);
+        return R.fail(RspCode.PARAM_ERROR.getCode(), errMsg);
+
     }
 }
