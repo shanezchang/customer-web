@@ -2,7 +2,7 @@ package com.shane.customer_web.service;
 
 import java.util.Map;
 
-public interface MailService {
+public interface IMailService {
     /**
      * 发送简单文本邮件
      *

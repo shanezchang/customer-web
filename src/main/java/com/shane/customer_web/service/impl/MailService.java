@@ -1,5 +1,6 @@
-package com.shane.customer_web.service;
+package com.shane.customer_web.service.impl;
 
+import com.shane.customer_web.service.IMailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MailServiceImpl implements MailService {
+public class MailService implements IMailService {
 
     private final JavaMailSender mailSender;
 

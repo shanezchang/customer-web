@@ -1,6 +1,6 @@
 package com.shane.customer_web.controller;
 
-import com.shane.customer_web.service.MailService;
+import com.shane.customer_web.service.IMailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/mail")
 public class MailController {
 
-    private final MailService mailService;
+    private final IMailService mailService;
 
     @GetMapping("/send-simple")
     public String sendSimple() {
