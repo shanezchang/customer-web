@@ -13,6 +13,7 @@ public enum RspCode {
     SIGN_IN_TIMEOUT(1004, "登录超时"),
     SIGN_IN_PASSWORD_ERROR(1005, "登录密码错误"),
     TOKEN_ERROR(1006, "token无效"),
+    TOKEN_EMPTY_ERROR(1007, "用户未登录"),
 
     PARAM_ERROR(2001, "参数错误"),
 

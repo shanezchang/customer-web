@@ -38,4 +38,10 @@ public class HealthController {
         }
         return R.success();
     }
+
+    @GetMapping("/test_auth")
+    public R<Object> testAuth() {
+        log.info("invoke /test_auth.");
+        return R.success();
+    }
 }
