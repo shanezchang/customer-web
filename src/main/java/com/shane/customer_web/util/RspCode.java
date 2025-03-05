@@ -1,8 +1,10 @@
 package com.shane.customer_web.util;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public enum RspCode {
     SUCCESS(200, "success"),
     INNER_ERROR(500, "系统繁忙，请稍后再试"),
@@ -24,10 +26,5 @@ public enum RspCode {
 
     private final int code;
     private final String message;
-
-    RspCode(int code, String message) {
-        this.code = code;
-        this.message = message;
-    }
 
 }

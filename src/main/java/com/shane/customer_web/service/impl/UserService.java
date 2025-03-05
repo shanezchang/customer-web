@@ -69,14 +69,6 @@ public class UserService implements IUserService {
         redisTemplate.opsForValue().set(SIGN_IN_TOKEN_REDIS_KEY_PREFIX + token, userTokenDTO,
                 decryptedResult.getExpireTimestamp());
         return token;
-
-        /*
-        网关验证
-        1. 校验 token 是否存在
-        2. 通过 token 获取用户信息
-        3. 将 用户信息作为 header 请求业务服务
-         */
-
     }
 
     @Override
@@ -143,8 +135,26 @@ public class UserService implements IUserService {
 
     @Override
     public Long authToken(String token) {
-        // 取出redis的值
+        // test redis
+        long expireTimestamp = System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7;
+        UserTokenDTO userTokenDTO = UserTokenDTO.builder()
+                .userId(1L)
+                .expireTimestamp(expireTimestamp)
+                .build();
+        
+        // 计算剩余存活时间（秒）
+        long currentTime = System.currentTimeMillis();
+        long ttlSeconds = (expireTimestamp - currentTime) / 1000;
+        // 存储到 redis 中，使用正确的参数类型
+        redisTemplate.opsForValue().set(
+            SIGN_IN_TOKEN_REDIS_KEY_PREFIX + token, 
+            userTokenDTO,
+            Duration.ofSeconds(ttlSeconds)
+        );
+
+        // 修改后的取值逻辑（无需强制类型转换）
         UserTokenDTO user = (UserTokenDTO) redisTemplate.opsForValue().get(SIGN_IN_TOKEN_REDIS_KEY_PREFIX + token);
+        log.info("user:{}", user);
         if (user == null) {
             throw new BusinessException(RspCode.TOKEN_ERROR);
         }
