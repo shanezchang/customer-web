@@ -14,4 +14,8 @@ public interface IUserService {
     void sendCode(@NotBlank String email);
 
     Long authToken(String token);
+
+    String getPasswordMd5(String password);
+
+    String genSignature(String password);
 }

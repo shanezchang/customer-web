@@ -48,7 +48,6 @@ public class UserService implements IUserService {
         1. 解析 signature 获取 时间戳和密码 并执行校验
         2. 登录成功 返回 token 并存储到 redis 中
          */
-
         LambdaQueryWrapper<UserEntity> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(UserEntity::getEmail, email);
         UserEntity entity = userMapper.selectOne(queryWrapper);
@@ -57,17 +56,23 @@ public class UserService implements IUserService {
         }
 
         AesPasswordEncryptor.DecryptedResult decryptedResult = aesPasswordEncryptor.aesDecrypt(signature);
+        log.info("decryptedResult:{}", decryptedResult);
         decryptedResult.isValid(signInValidMinute, entity.getPassword(), signInExpireDay);
 
         // 登录成功 返回 token 并存储到 redis 中
+        long currentTime = System.currentTimeMillis();
         UserTokenDTO userTokenDTO = UserTokenDTO.builder()
                 .userId(entity.getUserId())
                 .expireTimestamp(decryptedResult.getExpireTimestamp())
                 .build();
-        String token = Md5Encryptor.encrypt(entity.getUserId() + String.valueOf(System.currentTimeMillis()));
-        // 存储到 redis 中, 并指定过期的时间戳
-        redisTemplate.opsForValue().set(SIGN_IN_TOKEN_REDIS_KEY_PREFIX + token, userTokenDTO,
-                decryptedResult.getExpireTimestamp());
+        String token = Md5Encryptor.encrypt(entity.getUserId() + String.valueOf(currentTime));
+        log.info("token:{}", token);
+        // 存储到 redis 中, 并指定过期的时间戳 计算剩余存活时间
+        redisTemplate.opsForValue().set(
+                SIGN_IN_TOKEN_REDIS_KEY_PREFIX + token,
+                userTokenDTO,
+                Duration.ofMillis(decryptedResult.getExpireTimestamp() - currentTime)
+        );
         return token;
     }
 
@@ -135,26 +140,7 @@ public class UserService implements IUserService {
 
     @Override
     public Long authToken(String token) {
-        // test redis
-        long expireTimestamp = System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7;
-        UserTokenDTO userTokenDTO = UserTokenDTO.builder()
-                .userId(1L)
-                .expireTimestamp(expireTimestamp)
-                .build();
-        
-        // 计算剩余存活时间（秒）
-        long currentTime = System.currentTimeMillis();
-        long ttlSeconds = (expireTimestamp - currentTime) / 1000;
-        // 存储到 redis 中，使用正确的参数类型
-        redisTemplate.opsForValue().set(
-            SIGN_IN_TOKEN_REDIS_KEY_PREFIX + token, 
-            userTokenDTO,
-            Duration.ofSeconds(ttlSeconds)
-        );
-
-        // 修改后的取值逻辑（无需强制类型转换）
         UserTokenDTO user = (UserTokenDTO) redisTemplate.opsForValue().get(SIGN_IN_TOKEN_REDIS_KEY_PREFIX + token);
-        log.info("user:{}", user);
         if (user == null) {
             throw new BusinessException(RspCode.TOKEN_ERROR);
         }
@@ -163,5 +149,15 @@ public class UserService implements IUserService {
             throw new BusinessException(RspCode.TOKEN_ERROR);
         }
         return user.getUserId();
+    }
+
+    @Override
+    public String getPasswordMd5(String password) {
+        return Md5Encryptor.encrypt(password);
+    }
+
+    @Override
+    public String genSignature(String password) {
+        return aesPasswordEncryptor.aesEncrypt(password, System.currentTimeMillis());
     }
 }

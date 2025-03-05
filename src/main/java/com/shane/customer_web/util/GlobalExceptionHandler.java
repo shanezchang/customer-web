@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.stream.Collectors;
 
+import jakarta.validation.ConstraintViolationException;
+
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
@@ -39,6 +41,20 @@ public class GlobalExceptionHandler {
         errMsg = errMsg.isEmpty() ? RspCode.PARAM_ERROR.getMessage() : errMsg;
         log.warn("参数校验失败 {}", errMsg);
         return R.fail(RspCode.PARAM_ERROR.getCode(), errMsg);
+    }
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    public R<?> handleConstraintViolation(ConstraintViolationException e) {
+        String errMsg = e.getConstraintViolations().stream()
+                .map(v -> {
+                    // 更安全的字段名提取方式
+                    String[] pathNodes = v.getPropertyPath().toString().split("\\.");
+                    String fieldName = pathNodes[pathNodes.length - 1];
+                    return String.format("%s: %s", fieldName, v.getMessage());
+                })
+                .collect(Collectors.joining("; "));
+
+        log.warn("参数校验失败（GET） {}", errMsg);
+        return R.fail(RspCode.PARAM_ERROR.getCode(), errMsg);
     }
 }

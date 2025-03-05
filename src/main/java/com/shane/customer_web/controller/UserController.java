@@ -5,6 +5,7 @@ import com.shane.customer_web.model.bo.SignInBO;
 import com.shane.customer_web.model.bo.SignUpBO;
 import com.shane.customer_web.service.IUserService;
 import com.shane.customer_web.util.R;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/user")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class UserController {
 
     private final IUserService userService;
@@ -39,9 +41,21 @@ public class UserController {
     }
 
     @GetMapping("/auth_token")
-    public R<Long> authToken(@RequestParam("token") String token) {
+    public R<Long> authToken(@RequestParam @NotBlank String token) {
         log.info("invoke /user/auth_token. token:{}", token);
         return R.success(userService.authToken(token));
+    }
+
+    @GetMapping("/get_password_md5")
+    public R<String> getPasswordMd5(@RequestParam @NotBlank String password) {
+        log.info("invoke /user/get_password_md5. password:{}", password);
+        return R.success(userService.getPasswordMd5(password));
+    }
+
+    @GetMapping("/gen_signature")
+    public R<String> genSignature(@RequestParam @NotBlank String password) {
+        log.info("invoke /user/gen_signature. password:{}", password);
+        return R.success(userService.genSignature(password));
     }
 
 }
